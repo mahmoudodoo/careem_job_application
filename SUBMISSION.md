@@ -80,7 +80,3 @@ content in the user turn. ASCII-only reports, because they end up in CI logs and
 consoles. Findings capped per rule, because twelve magic-number notes bury the one
 blocker. And a negative test for every heuristic — a rule that cries wolf is worse than
 no rule at all.
-
-**Time spent:** roughly the 30–60 minutes suggested on the core prompt-and-pipeline
-design, plus additional time on the static pass, tests and CI because that is the part
-that makes it a tool rather than a demo.

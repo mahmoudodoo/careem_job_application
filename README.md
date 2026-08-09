@@ -58,20 +58,6 @@ Committed example reports are in **[`examples/`](examples/)** —
 [`examples/README.md`](examples/README.md) explains which findings only appear in live
 mode, and why.
 
-## Screenshots
-
-> Drop the images into `docs/screenshots/` using exactly these filenames and they will
-> appear here. [DOCUMENTATION.md](DOCUMENTATION.md#appendix-a--screenshots) lists the
-> command to run for each one.
-
-| Web UI — Smart Code Reviewer | Web UI — Snippet 3+1 |
-|---|---|
-| ![Review tab](docs/screenshots/01-web-ui-review.png) | ![Snippet tab](docs/screenshots/03-web-ui-snippet.png) |
-
-| CLI — static pass | CLI — CI gate failing |
-|---|---|
-| ![scan](docs/screenshots/04-cli-scan.png) | ![gate](docs/screenshots/06-cli-gate-fail.png) |
-
 ## What it looks like
 
 `python review.py scan samples` — the deterministic layer, no model involved:
@@ -122,7 +108,6 @@ prompts/          the three system prompts, as readable Markdown
 samples/          deliberately flawed Go fixtures (ETA + routing domain)
 src/              the package - see ARCHITECTURE.md for a file-by-file map
 tests/            51 hermetic unittest cases
-docs/screenshots/ put screenshots here
 .github/workflows/ai-code-review.yml   the reviewer gating its own pull requests
 ```
 

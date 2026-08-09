@@ -6,8 +6,8 @@
 **Author:** Mahmoud Al-Qudah
 
 This document covers everything: what the tool is, how to run every part of it on a
-Windows machine, what each command produces, where to put screenshots, how to run it
-against a live model API, and how to publish it.
+Windows machine, what each command produces, and how to run it against a live model
+API.
 
 ---
 
@@ -26,9 +26,6 @@ against a live model API, and how to publish it.
 11. [Configuration reference](#11-configuration-reference)
 12. [Architecture](#12-architecture)
 13. [Troubleshooting](#13-troubleshooting)
-14. [Publishing to GitHub](#14-publishing-to-github)
-15. [Appendix A — Screenshots](#appendix-a--screenshots)
-16. [Appendix B — What to submit](#appendix-b--what-to-submit)
 
 ---
 
@@ -296,8 +293,8 @@ comprehension — and the sample files were written to contain both kinds:
 - `ComputeBatch` swallows every per-order error with `continue`, so a caller cannot tell
   a filtered order from a failed one.
 
-`--mock` reports none of these three. That contrast is the point of the design and is
-worth showing in the screenshots.
+`--mock` reports none of these three. That contrast is the point of the design: the
+static pass buys precision, the model buys comprehension.
 
 ### Cost and tuning
 
@@ -469,98 +466,3 @@ review.py         zero-install launcher
 | `The model declined this request` | A safety classifier fired. Retry with a smaller excerpt. |
 | Report shows `provider: mock` unexpectedly | `--mock` is still on the command line, or the web UI checkbox is still ticked. |
 | Garbled characters in PowerShell | The reports are ASCII; if paths render oddly, run `chcp 65001` first. |
-
----
-
-## 14. Publishing to GitHub
-
-The repo is already cloned and pointed at the right remote. From the project folder:
-
-```powershell
-cd "e:\Careem Software Engineer Job Opportunity\careem_job_application"
-
-git add .
-git commit -m "Careem AI Challenge: AI code review toolkit (all three challenges)"
-git push -u origin main
-```
-
-If `main` is rejected because the default branch is `master`, use `git push -u origin
-master` instead — `git branch --show-current` tells you which you are on.
-
-Before pushing, confirm no key is committed:
-
-```powershell
-git status --short
-Select-String -Path * -Pattern "sk-ant-" -Recurse -ErrorAction SilentlyContinue
-```
-
-`.env` and `out/` are gitignored.
-
----
-
-## Appendix A — Screenshots
-
-Create the images and save them into **`docs/screenshots/`** with **exactly these
-filenames** — the README and this document already reference them, so they will render
-as soon as the files exist.
-
-On Windows: `Win + Shift + S` to snip, then paste into Paint and save as PNG. For
-terminal shots, maximise the window and use a readable font size first.
-
-| # | Filename | What to capture | Command to run first |
-|---|---|---|---|
-| 1 | `01-web-ui-review.png` | Web UI, **Review** tab, `eta_service.go` loaded, findings and scores visible on the right | `python review.py serve --mock` then press **Run** |
-| 2 | `02-web-ui-pair.png` | Web UI, **Pair** tab, showing design flaws and a generated test | same server, switch tab, press **Run** |
-| 3 | `03-web-ui-snippet.png` | Web UI, **Snippet 3+1** tab with `snippet.go` — three improvements and the positive note | load `snippet.go` from the sample dropdown, press **Run** |
-| 4 | `04-cli-scan.png` | Terminal showing measured metrics and static findings | `python review.py scan samples` |
-| 5 | `05-cli-demo.png` | Terminal showing all three challenges running and the reports being written | `python review.py demo --mock` |
-| 6 | `06-cli-gate-fail.png` | Terminal showing the gate rejecting the change | `python review.py review samples --mock --gate` then `echo $LASTEXITCODE` |
-| 7 | `07-report-markdown.png` | `out\01_review.md` in VS Code's rendered preview (`Ctrl+Shift+V`) | `python review.py demo --mock` |
-| 8 | `08-tests-pass.png` | Terminal showing `Ran 51 tests ... OK` | `python -m unittest discover -s tests -t . -v` |
-| 9 | `09-live-model-review.png` | **Optional but the strongest one.** A live review — the header shows a live provider and model, and findings the static pass cannot produce (the unsynchronised `cache` map, the misnamed `haversine`) | set the key, then `python review.py review samples\routing.go` |
-| 10 | `10-github-action.png` | **Optional.** The workflow run, or the reviewer's comment on a pull request | push a branch and open a PR |
-
-Numbers 1, 3, 4 and 6 are the ones already embedded in the README — do those first if
-you are short on time. Number 9 is the one that best demonstrates the difference between
-a linter and this tool.
-
-Placeholder Markdown to reuse elsewhere:
-
-```markdown
-![Smart Code Reviewer — web UI](docs/screenshots/01-web-ui-review.png)
-![Snippet 3+1](docs/screenshots/03-web-ui-snippet.png)
-![Static pass](docs/screenshots/04-cli-scan.png)
-![CI gate failing](docs/screenshots/06-cli-gate-fail.png)
-![Live model review](docs/screenshots/09-live-model-review.png)
-```
-
----
-
-## Appendix B — What to submit
-
-The Careem form asks for three things.
-
-**1. A public link, document, or screenshots of your prototype or prompt**
-
-> <https://github.com/mahmoudodoo/careem_job_application>
->
-> Runs offline in one command with no API key: `python review.py demo --mock`.
-> The three prompts are readable directly in `prompts/`.
-
-**2. A public dataset link (if relevant)**
-
-Not applicable — no dataset is used. The inputs are self-authored Go fixtures in
-`samples/`, written specifically for this submission. State this explicitly rather than
-leaving it blank:
-
-> No dataset required. Inputs are self-authored, deliberately flawed Go fixtures in
-> `samples/`. No Careem code, data, or internal information is used.
-
-**3. A short 100-word summary**
-
-In [SUBMISSION.md](SUBMISSION.md) — paste it into the form's summary field, or upload
-that file.
-
-**Optional AI Challenge attachment.** The form accepts pdf/doc/docx/txt/rtf. Either
-attach `SUBMISSION.md` renamed to `.txt`, or export this document to PDF (in VS Code:
-`Ctrl+Shift+V`, then print to PDF) and attach that.
