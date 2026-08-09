@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "careem-ai-reviewer"
+version = "1.0.0"
+description = "AI code review toolkit: smart reviewer, pair engineer, and a 3+1 snippet reviewer."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Mahmoud Al-Qudah" }]
+keywords = ["code-review", "llm", "ai", "static-analysis", "developer-tools"]
+
+# No runtime dependencies: the toolkit runs fully offline in --mock mode.
+dependencies = []
+
+[project.optional-dependencies]
+# Only needed for live model calls. `pip install -e ".[live]"`
+live = ["anthropic>=0.40"]
+
+[project.scripts]
+careem-ai-reviewer = "careem_ai_reviewer.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+careem_ai_reviewer = ["py.typed"]

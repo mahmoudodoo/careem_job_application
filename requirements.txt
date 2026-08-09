@@ -1,0 +1,12 @@
+# The toolkit has NO required runtime dependencies.
+#
+#   python review.py demo --mock          <- works on a bare Python 3.10+ install
+#   python -m unittest discover -s tests -t .
+#
+# The single optional dependency below is only needed for live model mode:
+#
+#   pip install -r requirements.txt
+#   $env:LLM_API_KEY = "..."      # PowerShell
+#   export LLM_API_KEY="..."      # bash
+#   python review.py review samples
+anthropic>=0.40

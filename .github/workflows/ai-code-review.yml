@@ -1,0 +1,98 @@
+name: AI Code Review
+
+# Two jobs, deliberately split:
+#
+#   tests  - always runs, no secrets, no network. Proves the toolkit itself works.
+#   review - runs the Smart Code Reviewer as a quality gate on the PR's changed files.
+#            Falls back to offline mock mode when LLM_API_KEY is not configured
+#            (forks, Dependabot), so the gate never silently disappears.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  tests:
+    name: Unit tests (offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run the suite
+        run: python -m unittest discover -s tests -t . -v
+      - name: Smoke-test all three challenges
+        run: python review.py demo --mock
+
+  review:
+    name: Smart Code Reviewer gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the reviewer diffs against the base branch
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install (live mode only when a key is present)
+        if: ${{ env.LLM_API_KEY != '' }}
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: pip install -r requirements.txt
+
+      - name: Review changed files
+        id: review
+        env:
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          BASE_REF: ${{ github.event.pull_request.base.sha || 'HEAD~1' }}
+        run: |
+          MODE=""
+          if [ -z "$LLM_API_KEY" ]; then
+            echo "::notice::No LLM_API_KEY configured - running the offline gate."
+            MODE="--mock"
+          fi
+          python review.py review \
+            --changed-since "$BASE_REF" \
+            --gate \
+            --effort medium \
+            $MODE \
+            --out review.md
+        continue-on-error: true
+
+      - name: Publish the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-code-review
+          path: review.md
+          if-no-files-found: ignore
+
+      - name: Comment on the pull request
+        if: always() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (!fs.existsSync('review.md')) return;
+            const body = fs.readFileSync('review.md', 'utf8').slice(0, 65000);
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body,
+            });
+
+      - name: Fail the build if the gate failed
+        if: steps.review.outcome == 'failure'
+        run: |
+          echo "::error::The AI reviewer's quality gate rejected this change. See the PR comment."
+          exit 1
